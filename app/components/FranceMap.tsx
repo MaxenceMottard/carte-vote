@@ -181,8 +181,8 @@ export default function FranceMap() {
       <MapContainer
         ref={mapRef}
         center={[46.5, 2.5]}
-        zoom={6}
-        minZoom={5}
+        zoom={7}
+        minZoom={6}
         maxBounds={[[41.0, -5.5], [51.5, 10.0]]}
         maxBoundsViscosity={1.0}
         className="w-full h-full"

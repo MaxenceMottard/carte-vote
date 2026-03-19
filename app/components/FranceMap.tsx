@@ -68,7 +68,7 @@ export default function FranceMap() {
     const nuance = code ? winnerMapRef.current.get(code) : undefined
 
     const label = nuance !== undefined
-      ? `${NUANCE_LABELS[nuance] ?? nuance} (${nuance})`
+      ? (nuance ? `${NUANCE_LABELS[nuance] ?? nuance} (${nuance})` : NUANCE_LABELS[''])
       : '2e tour'
 
     layer.bindTooltip(

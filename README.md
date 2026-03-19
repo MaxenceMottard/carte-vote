@@ -10,9 +10,17 @@ Carte Vote affiche les résultats du 1er tour des élections municipales 2026 co
 - **Rouge** — Gauche
 - **Orange** — Centre
 - **Teal** — Divers / Régional
-- **Gris** — Sans étiquette / en attente du 2nd tour
+- **Gris** — Sans étiquette
+- **Blanc** — En attente du 2nd tour (pas de vainqueur au 1er tour)
 
 Les règles électorales du tour 1 sont appliquées : une liste est élue si elle obtient plus de 50 % des suffrages exprimés **et** au moins 25 % des inscrits.
+
+## Fonctionnalités
+
+- **Carte choroplèthe interactive** — navigation restreinte aux frontières de la France métropolitaine
+- **Panel détail commune** — cliquer sur une commune affiche les listes en compétition avec les têtes de liste, les scores du 1er tour, et les sections 2nd tour le cas échéant ; appuyer sur Échap pour fermer
+- **Barre de recherche** — recherche insensible aux accents, espaces et symboles (ex. "saint emilion" trouve "Saint-Émilion") ; raccourci **⌘K / Ctrl+K** pour y accéder au clavier
+- **Légende avec pourcentages** — visualisation de la répartition des familles politiques sur l'ensemble des communes
 
 ## Stack technique
 

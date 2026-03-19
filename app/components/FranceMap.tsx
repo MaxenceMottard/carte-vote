@@ -26,6 +26,17 @@ export default function FranceMap() {
   const selectedCodeRef = useRef<string | null>(null)
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        selectedCodeRef.current = null
+        setSelectedCommune(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  useEffect(() => {
     fetch(DATA_URLS.municipales2026.townResults)
       .then((r) => r.json())
       .then((data: CommuneResult[]) => {

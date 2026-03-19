@@ -1,0 +1,6 @@
+name = "carte-vote"
+compatibility_date = "2026-03-19"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "carte-vote"

@@ -3,4 +3,7 @@ export const DATA_URLS = {
     electedCandidates: "https://data.carte-vote.fr/municipales-2026/candidats-elus-t1.json",
     townResults: "https://data.carte-vote.fr/municipales-2026/resultats-communes-t1.json",
   },
+  geojson: {
+    communes: "https://data.carte-vote.fr/geojson/communes-version-simplifiee.geojson",
+  },
 };

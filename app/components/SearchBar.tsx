@@ -20,6 +20,7 @@ function normalize(str: string): string {
 }
 
 export default function SearchBar({ communes, onSelect }: SearchBarProps) {
+  const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Commune[]>([])
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
@@ -58,6 +59,19 @@ export default function SearchBar({ communes, onSelect }: SearchBarProps) {
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Command+K shortcut to focus input
+  useEffect(() => {
+    function handleGlobalKeyDown(e: KeyboardEvent) {
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        inputRef.current?.focus()
+        inputRef.current?.select()
+      }
+    }
+    document.addEventListener('keydown', handleGlobalKeyDown)
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown)
   }, [])
 
   function handleSelect(commune: Commune) {
@@ -115,8 +129,12 @@ export default function SearchBar({ communes, onSelect }: SearchBarProps) {
           onKeyDown={handleKeyDown}
           onFocus={() => results.length > 0 && setOpen(true)}
           placeholder="Rechercher une commune…"
-          className="w-full pl-9 pr-4 py-2 bg-white rounded-lg shadow-md border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full pl-9 pr-16 py-2 bg-white rounded-lg shadow-md border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
+        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 text-gray-400 text-xs pointer-events-none">
+          <span className="font-sans">{isMac ? '⌘' : 'Ctrl+'}</span>
+          <span>K</span>
+        </kbd>
       </div>
       {open && (
         <ul className="mt-1 bg-white rounded-lg shadow-md border border-gray-200 overflow-y-auto max-h-64 text-sm">

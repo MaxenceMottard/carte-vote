@@ -16,6 +16,8 @@ export default function Home() {
         <a href="https://github.com/maxencemottard" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">Maxence Mottard</a>
         <span>&amp;</span>
         <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">Claude</a>
+        <span>—</span>
+        <a href="https://github.com/MaxenceMottard/carte-vote" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">Repository GitHub</a>
         <span>— Données</span>
         <a href="https://data.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">data.gouv.fr</a>
       </footer>

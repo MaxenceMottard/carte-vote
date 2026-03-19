@@ -23,6 +23,7 @@ export default function FranceMap() {
   const [selectedCommune, setSelectedCommune] = useState<{ code: string; name: string } | null>(null)
   const winnerMapRef = useRef<WinnerMap>(new Map())
   const communeResultsMapRef = useRef<CommuneResultsMap>(new Map())
+  const selectedCodeRef = useRef<string | null>(null)
 
   useEffect(() => {
     fetch(DATA_URLS.municipales2026.townResults)
@@ -54,11 +55,12 @@ export default function FranceMap() {
   function styleFeature(feature?: Feature): PathOptions {
     const code = feature?.properties?.code as string | undefined
     const nuance = code ? winnerMapRef.current.get(code) : undefined
+    const isSelected = !!code && code === selectedCodeRef.current
     return {
       fillColor: nuance !== undefined ? (NUANCE_COLORS[nuance] ?? NUANCE_COLORS['']) : NO_WINNER_COLOR,
       fillOpacity: 0.8,
-      color: '#ffffff',
-      weight: 0.5,
+      color: isSelected ? '#333' : '#ffffff',
+      weight: isSelected ? 2 : 0.5,
     }
   }
 
@@ -84,9 +86,11 @@ export default function FranceMap() {
       },
       mouseout: (e: LeafletMouseEvent) => {
         const target = e.target as { setStyle: (s: PathOptions) => void }
+        // styleFeature returns hover style for the selected commune, so this is safe to call always
         target.setStyle(styleFeature(feature))
       },
       click: () => {
+        selectedCodeRef.current = code ?? null
         setSelectedCommune({ code: code ?? '', name: name ?? code ?? '' })
       },
     })
@@ -134,7 +138,10 @@ export default function FranceMap() {
           <CommunePanel
             name={selectedCommune.name}
             result={communeResultsMap.get(selectedCommune.code)}
-            onClose={() => setSelectedCommune(null)}
+            onClose={() => {
+              selectedCodeRef.current = null
+              setSelectedCommune(null)
+            }}
           />
         </div>
       )}

@@ -24,3 +24,10 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Remove browser focus outline on Leaflet SVG elements (prevents square highlight on click) */
+.leaflet-container path,
+.leaflet-container svg,
+.leaflet-container canvas {
+  outline: none;
+}

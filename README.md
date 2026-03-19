@@ -9,7 +9,8 @@ Carte Vote affiche les résultats du 1er tour des élections municipales 2026 co
 - **Bleu** — Droite
 - **Rouge** — Gauche
 - **Orange** — Centre
-- **Gris** — Divers / en attente du 2nd tour
+- **Teal** — Divers / Régional
+- **Gris** — Sans étiquette / en attente du 2nd tour
 
 Les règles électorales du tour 1 sont appliquées : une liste est élue si elle obtient plus de 50 % des suffrages exprimés **et** au moins 25 % des inscrits.
 
@@ -43,4 +44,4 @@ Ouvrir [http://localhost:3000](http://localhost:3000).
 
 ## Déploiement
 
-Le site est exporté en statique (`next build`) et déployé via Cloudflare Pages.
+Le site est exporté en statique (`next build`) et déployé via GitHub Pages.

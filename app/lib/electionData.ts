@@ -17,6 +17,16 @@ export interface CommuneResult {
 
 export type WinnerMap = Map<string, string>;
 
+export type CommuneResultsMap = Map<string, CommuneResult>;
+
+export function buildResultsMap(results: CommuneResult[]): CommuneResultsMap {
+  const map: CommuneResultsMap = new Map();
+  for (const commune of results) {
+    map.set(commune.code_commune, commune);
+  }
+  return map;
+}
+
 // French municipal T1 election rule:
 // a list wins outright if it gets >50% of expressed votes AND >=25% of registered voters
 function isElectedT1(liste: Liste, inscrits: number): boolean {

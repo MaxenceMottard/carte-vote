@@ -6,19 +6,23 @@ import { MapContainer, GeoJSON } from 'react-leaflet'
 import type { GeoJsonObject, Feature } from 'geojson'
 import type { Layer, PathOptions, LeafletMouseEvent } from 'leaflet'
 import { DATA_URLS } from '@/app/config'
-import { buildWinnerMap } from '@/app/lib/electionData'
-import type { CommuneResult, WinnerMap } from '@/app/lib/electionData'
+import { buildWinnerMap, buildResultsMap } from '@/app/lib/electionData'
+import type { CommuneResult, WinnerMap, CommuneResultsMap } from '@/app/lib/electionData'
 import { NUANCE_COLORS, NUANCE_LABELS, NO_WINNER_COLOR } from '@/app/lib/nuances'
 import MapLegend from './MapLegend'
+import CommunePanel from './CommunePanel'
 
 export default function FranceMap() {
   const [geojson, setGeojson] = useState<GeoJsonObject | null>(null)
   const [winnerMap, setWinnerMap] = useState<WinnerMap>(new Map())
+  const [communeResultsMap, setCommuneResultsMap] = useState<CommuneResultsMap>(new Map())
   const [loadingData, setLoadingData] = useState(true)
   const [loadingGeo, setLoadingGeo] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [noResults, setNoResults] = useState(false)
+  const [selectedCommune, setSelectedCommune] = useState<{ code: string; name: string } | null>(null)
   const winnerMapRef = useRef<WinnerMap>(new Map())
+  const communeResultsMapRef = useRef<CommuneResultsMap>(new Map())
 
   useEffect(() => {
     fetch(DATA_URLS.municipales2026.townResults)
@@ -30,6 +34,9 @@ export default function FranceMap() {
           const map = buildWinnerMap(data)
           winnerMapRef.current = map
           setWinnerMap(map)
+          const resultsMap = buildResultsMap(data)
+          communeResultsMapRef.current = resultsMap
+          setCommuneResultsMap(resultsMap)
         }
       })
       .catch(() => setError('Impossible de charger les résultats électoraux.'))
@@ -79,6 +86,9 @@ export default function FranceMap() {
         const target = e.target as { setStyle: (s: PathOptions) => void }
         target.setStyle(styleFeature(feature))
       },
+      click: () => {
+        setSelectedCommune({ code: code ?? '', name: name ?? code ?? '' })
+      },
     })
   }
 
@@ -116,6 +126,15 @@ export default function FranceMap() {
         )}
       </MapContainer>
       {!loadingGeo && <MapLegend winnerMap={winnerMap} />}
+      {selectedCommune && (
+        <div className="absolute bottom-6 right-6 z-[1000]">
+          <CommunePanel
+            name={selectedCommune.name}
+            result={communeResultsMap.get(selectedCommune.code)}
+            onClose={() => setSelectedCommune(null)}
+          />
+        </div>
+      )}
     </div>
   )
 }

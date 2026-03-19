@@ -1,30 +1,43 @@
+// French flag blue and red
+const BLUE = "#002395";
+const RED = "#ED2939";
+const ORANGE = "#E67E22";
+const GREY = "#6b7280";
+
 export const NUANCE_COLORS: Record<string, string> = {
-  LRN: "#003189",
-  LFI: "#cc2443",
-  LSOC: "#e75480",
-  LLR: "#0066cc",
-  LREN: "#ffbe00",
-  LECO: "#22c55e",
-  LCOM: "#8b0000",
-  LEXG: "#dc2626",
-  LEXD: "#172554",
-  LDVG: "#f472b6",
-  LDVD: "#60a5fa",
-  LDIV: "#6b7280",
-  LHOR: "#0d9488",
-  LMDM: "#d97706",
-  LREC: "#65a30d",
-  LREG: "#4ade80",
-  LUC: "#06b6d4",
-  LUD: "#38bdf8",
-  LUDI: "#64748b",
-  LUDR: "#4338ca",
-  LUG: "#f87171",
-  LUXD: "#172554",
-  LVEC: "#10b981",
-  LDSV: "#f97316",
-  LDVC: "#eab308",
-  "": "#9ca3af",
+  // Right
+  LRN: BLUE,
+  LLR: BLUE,
+  LEXD: BLUE,
+  LDVD: BLUE,
+  LUD: BLUE,
+  LUDR: BLUE,
+  LUXD: BLUE,
+  LUDI: BLUE,
+
+  // Left
+  LFI: RED,
+  LSOC: RED,
+  LCOM: RED,
+  LEXG: RED,
+  LDVG: RED,
+  LUG: RED,
+  LVEC: RED,
+  LECO: RED,
+
+  // Center
+  LREN: ORANGE,
+  LHOR: ORANGE,
+  LMDM: ORANGE,
+  LUC: ORANGE,
+  LDVC: ORANGE,
+
+  // Miscellaneous / Regional
+  LDIV: GREY,
+  LREC: GREY,
+  LREG: GREY,
+  LDSV: GREY,
+  "": GREY,
 };
 
 export const NUANCE_LABELS: Record<string, string> = {
@@ -54,6 +67,14 @@ export const NUANCE_LABELS: Record<string, string> = {
   LDSV: "Divers",
   LDVC: "Divers Centre",
   "": "Autre",
+};
+
+// Family label for the legend
+export const FAMILY_LABELS: Record<string, string> = {
+  [BLUE]: "Droite",
+  [RED]: "Gauche",
+  [ORANGE]: "Centre",
+  [GREY]: "Divers / Régional",
 };
 
 export const NO_WINNER_COLOR = "#e5e7eb";

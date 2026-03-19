@@ -1,4 +1,5 @@
 export interface Liste {
+  numero: number;
   elu: boolean;
   nuance: string;
   voix: number;

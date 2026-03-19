@@ -1,4 +1,5 @@
 import type { CommuneResult } from '@/app/lib/electionData'
+import { isElectedT1 } from '@/app/lib/electionData'
 import { NUANCE_COLORS, NUANCE_LABELS } from '@/app/lib/nuances'
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 
 export default function CommunePanel({ name, result, onClose }: Props) {
   const totalVoix = result?.listes.reduce((sum, l) => sum + l.voix, 0) ?? 0
+  const inscrits = result?.participation?.inscrits ?? 0
   const sortedListes = result
     ? [...result.listes].sort((a, b) => b.voix - a.voix)
     : []
@@ -36,7 +38,11 @@ export default function CommunePanel({ name, result, onClose }: Props) {
             {sortedListes.map((liste, i) => {
               const color = NUANCE_COLORS[liste.nuance] ?? NUANCE_COLORS['']
               const label = NUANCE_LABELS[liste.nuance] ?? liste.nuance
-              const isWinner = liste.elu === true
+              const isWinner = liste.elu === true || isElectedT1(liste, inscrits)
+
+              const candidatName = liste.prenom && liste.nom
+                ? `${liste.prenom} ${liste.nom}`
+                : undefined
 
               return (
                 <div key={i} className="flex items-start gap-2">
@@ -47,11 +53,14 @@ export default function CommunePanel({ name, result, onClose }: Props) {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1 flex-wrap">
-                      <span className="text-xs font-medium text-gray-800">{label}</span>
+                      <span className="text-xs font-medium text-gray-800">{candidatName ?? label}</span>
                       {isWinner && (
                         <span className="text-xs bg-green-100 text-green-700 px-1 rounded">Élu</span>
                       )}
                     </div>
+                    {candidatName && (
+                      <div className="text-xs text-gray-500">{label}</div>
+                    )}
                     <div className="text-xs text-gray-500">
                       {liste.pct_voix_exprimes.toFixed(1)}% — {liste.voix.toLocaleString('fr-FR')} voix
                     </div>

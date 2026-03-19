@@ -1,15 +1,12 @@
-import https from 'https';
-import readline from 'readline';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const https = require('https');
+const readline = require('readline');
+const fs = require('fs');
+const path = require('path');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 
 const URLS = {
   communes: 'https://static.data.gouv.fr/resources/elections-municipales-2026-resultats-du-premier-tour/20260318-182631/municipales-2026-resultats-communes-2026-03-18.csv',
-  candidats: 'https://static.data.gouv.fr/resources/elections-municipales-2026-resultats-du-premier-tour/20260318-182506/municipales-2026-candidats-elus-france-entiere-tour-1-2026-03-18.csv',
+  candidatures: 'https://static.data.gouv.fr/resources/elections-municipales-2026-listes-candidates-au-premier-tour/20260313-152615/municipales-2026-candidatures-france-entiere-tour-1-2026-03-13.csv',
 };
 
 function parseNum(str) {
@@ -140,26 +137,28 @@ function transformCommune(row) {
       votants: parseInt2(row['Votants']),
       pct_votants: parseNum(row['% Votants']),
       abstentions: parseInt2(row['Abstentions']),
+      pct_abstentions: parseNum(row['% Abstentions']),
       exprimes: parseInt2(row['Exprimés']),
       blancs: parseInt2(row['Blancs']),
+      pct_blancs_inscrits: parseNum(row['% Blancs/inscrits']),
+      pct_blancs_votants: parseNum(row['% Blancs/votants']),
       nuls: parseInt2(row['Nuls']),
     },
     listes,
   };
 }
 
-function transformCandidat(row) {
+
+function transformTeteListe(row) {
+  // Filter by Ordre = 1 to avoid encoding issues with the accented "Tête de liste" column name
+  if (row['Ordre'] !== '1') return null;
+
   return {
-    nom: row['NOMPSN'],
-    prenom: row['PREPSN'],
-    date_naissance: row['DATNAIPSN'],
-    sexe: row['SEXPSN'],
-    code_commune: row['CODCOM'],
-    code_departement: row['CODDPT'],
-    effectif_legal: parseInt2(row['EFFECTIF_LEGAL']),
-    elu_epci: parseBool(row['IND_ELU_EPCI']),
-    nuance: row['CODE_NUANCE_DE_LISTE'] || '',
-    tour: row['TOUR_ELECTION'],
+    code: row['Code circonscription'],
+    panneau: parseInt2(row['Numéro de panneau']),
+    nom: row['Nom sur le bulletin de vote'] || '',
+    prenom: row['Prénom sur le bulletin de vote'] || '',
+    sexe: row['Sexe'] || '',
   };
 }
 
@@ -169,16 +168,16 @@ async function main() {
   console.log('Téléchargement des résultats par communes...');
   const communes = await parseCSV(URLS.communes, transformCommune, 'communes');
   console.log(`→ ${communes.length} communes traitées`);
-  const communesPath = path.join(DATA_DIR, 'resultats-communes-t1.json');
-  fs.writeFileSync(communesPath, JSON.stringify(communes, null, 2));
+  const communesPath = path.join(DATA_DIR, '2026-municipales-t1-results.json');
+  fs.writeFileSync(communesPath, JSON.stringify(communes));
   console.log(`  Écrit : ${communesPath}`);
 
-  console.log('\nTéléchargement des candidats élus...');
-  const candidats = await parseCSV(URLS.candidats, transformCandidat, 'candidats');
-  console.log(`→ ${candidats.length} candidats traités`);
-  const candidatsPath = path.join(DATA_DIR, 'candidats-elus-t1.json');
-  fs.writeFileSync(candidatsPath, JSON.stringify(candidats, null, 2));
-  console.log(`  Écrit : ${candidatsPath}`);
+  console.log('Téléchargement des têtes de liste...');
+  const tetes = await parseCSV(URLS.candidatures, transformTeteListe, 'candidatures');
+  console.log(`→ ${tetes.length} têtes de liste traitées`);
+  const tetesPath = path.join(DATA_DIR, '2026-municipales-t1-tetes.json');
+  fs.writeFileSync(tetesPath, JSON.stringify(tetes));
+  console.log(`  Écrit : ${tetesPath}`);
 }
 
 main().catch((err) => {

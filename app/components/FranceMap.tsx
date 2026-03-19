@@ -6,7 +6,7 @@ import { MapContainer, GeoJSON } from 'react-leaflet'
 import type { GeoJsonObject, Feature } from 'geojson'
 import type { Layer, PathOptions, LeafletMouseEvent } from 'leaflet'
 import { DATA_URLS } from '@/app/config'
-import { buildWinnerMap, buildResultsMap } from '@/app/lib/electionData'
+import { buildWinnerMap, buildResultsMap, isElectedT1 } from '@/app/lib/electionData'
 import type { CommuneResult, WinnerMap, CommuneResultsMap } from '@/app/lib/electionData'
 import { NUANCE_COLORS, NUANCE_LABELS, NO_WINNER_COLOR } from '@/app/lib/nuances'
 import MapLegend from './MapLegend'
@@ -37,19 +37,36 @@ export default function FranceMap() {
   }, [])
 
   useEffect(() => {
-    fetch(DATA_URLS.municipales2026.townResults)
-      .then((r) => r.json())
-      .then((data: CommuneResult[]) => {
-        if (!data || data.length === 0) {
+    Promise.all([
+      fetch(DATA_URLS.municipales2026.townResults).then((r) => r.json()),
+      fetch(DATA_URLS.municipales2026.listHeads).then((r) => r.json()),
+    ])
+      .then(([results, heads]: [CommuneResult[], { code: string; panneau: number; nom: string; prenom: string }[]]) => {
+        if (!results || results.length === 0) {
           setNoResults(true)
-        } else {
-          const map = buildWinnerMap(data)
-          winnerMapRef.current = map
-          setWinnerMap(map)
-          const resultsMap = buildResultsMap(data)
-          communeResultsMapRef.current = resultsMap
-          setCommuneResultsMap(resultsMap)
+          return
         }
+        // Build lookup map: "code_commune|panneau" → {nom, prenom}
+        const headsMap = new Map<string, { nom: string; prenom: string }>()
+        for (const h of heads) {
+          headsMap.set(`${h.code}|${h.panneau}`, { nom: h.nom, prenom: h.prenom })
+        }
+        // Enrich each liste with nom/prenom
+        for (const commune of results) {
+          for (const liste of commune.listes) {
+            const head = headsMap.get(`${commune.code_commune}|${liste.numero}`)
+            if (head) {
+              liste.nom = head.nom
+              liste.prenom = head.prenom
+            }
+          }
+        }
+        const map = buildWinnerMap(results)
+        winnerMapRef.current = map
+        setWinnerMap(map)
+        const resultsMap = buildResultsMap(results)
+        communeResultsMapRef.current = resultsMap
+        setCommuneResultsMap(resultsMap)
       })
       .catch(() => setError('Impossible de charger les résultats électoraux.'))
       .finally(() => setLoadingData(false))
@@ -84,10 +101,17 @@ export default function FranceMap() {
       ? (nuance ? `${NUANCE_LABELS[nuance] ?? nuance} (${nuance})` : NUANCE_LABELS[''])
       : '2e tour'
 
-    layer.bindTooltip(
-      `<strong>${name ?? code}</strong><br/>${label}`,
-      { sticky: true }
-    )
+    const result = communeResultsMapRef.current.get(code ?? '')
+    const inscrits = result?.participation?.inscrits ?? 0
+    const winner = result?.listes.find(l => l.elu === true) ?? result?.listes.find(l => isElectedT1(l, inscrits))
+    const candidatName = winner?.prenom && winner?.nom
+      ? `${winner.prenom} ${winner.nom}`
+      : undefined
+    const tooltipHtml = candidatName
+      ? `<strong>${name ?? code}</strong><br/>${candidatName}<br/><span style="opacity:0.7">${label}</span>`
+      : `<strong>${name ?? code}</strong><br/>${label}`
+
+    layer.bindTooltip(tooltipHtml, { sticky: true })
 
     layer.on({
       mouseover: (e: LeafletMouseEvent) => {

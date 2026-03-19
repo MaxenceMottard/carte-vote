@@ -3,6 +3,8 @@ export interface Liste {
   nuance: string;
   voix: number;
   pct_voix_exprimes: number;
+  nom?: string;
+  prenom?: string;
 }
 
 export interface Participation {
@@ -29,7 +31,7 @@ export function buildResultsMap(results: CommuneResult[]): CommuneResultsMap {
 
 // French municipal T1 election rule:
 // a list wins outright if it gets >50% of expressed votes AND >=25% of registered voters
-function isElectedT1(liste: Liste, inscrits: number): boolean {
+export function isElectedT1(liste: Liste, inscrits: number): boolean {
   if (liste.pct_voix_exprimes <= 50) return false;
   const pctInscrits = inscrits > 0 ? (liste.voix / inscrits) * 100 : 0;
   return pctInscrits >= 25;

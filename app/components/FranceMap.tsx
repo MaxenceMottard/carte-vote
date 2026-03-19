@@ -3,17 +3,19 @@
 import 'leaflet/dist/leaflet.css'
 import { useEffect, useState, useRef } from 'react'
 import { MapContainer, GeoJSON } from 'react-leaflet'
-import type { GeoJsonObject, Feature } from 'geojson'
-import type { Layer, PathOptions, LeafletMouseEvent } from 'leaflet'
+import type { GeoJsonObject, Feature, FeatureCollection } from 'geojson'
+import type { Layer, PathOptions, LeafletMouseEvent, Map as LeafletMap, GeoJSON as LeafletGeoJSON } from 'leaflet'
 import { DATA_URLS } from '@/app/config'
 import { buildWinnerMap, buildResultsMap, isElectedT1 } from '@/app/lib/electionData'
 import type { CommuneResult, WinnerMap, CommuneResultsMap } from '@/app/lib/electionData'
 import { NUANCE_COLORS, NUANCE_LABELS, NO_WINNER_COLOR } from '@/app/lib/nuances'
 import MapLegend from './MapLegend'
 import CommunePanel from './CommunePanel'
+import SearchBar from './SearchBar'
 
 export default function FranceMap() {
   const [geojson, setGeojson] = useState<GeoJsonObject | null>(null)
+  const [communes, setCommunes] = useState<{ code: string; name: string }[]>([])
   const [winnerMap, setWinnerMap] = useState<WinnerMap>(new Map())
   const [communeResultsMap, setCommuneResultsMap] = useState<CommuneResultsMap>(new Map())
   const [loadingData, setLoadingData] = useState(true)
@@ -24,6 +26,8 @@ export default function FranceMap() {
   const winnerMapRef = useRef<WinnerMap>(new Map())
   const communeResultsMapRef = useRef<CommuneResultsMap>(new Map())
   const selectedCodeRef = useRef<string | null>(null)
+  const mapRef = useRef<LeafletMap>(null)
+  const geoJsonLayerRef = useRef<LeafletGeoJSON>(null)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -75,10 +79,34 @@ export default function FranceMap() {
   useEffect(() => {
     fetch(DATA_URLS.geojson.communes)
       .then((r) => r.json())
-      .then((data: GeoJsonObject) => setGeojson(data))
+      .then((data: FeatureCollection) => {
+        setGeojson(data)
+        const list = data.features
+          .map((f) => ({ code: f.properties?.code as string, name: f.properties?.nom as string }))
+          .filter((c) => c.code && c.name)
+          .sort((a, b) => a.name.localeCompare(b.name, 'fr'))
+        setCommunes(list)
+      })
       .catch(() => setError('Impossible de charger la carte géographique.'))
       .finally(() => setLoadingGeo(false))
   }, [])
+
+  function centerOnCommune(code: string) {
+    if (!mapRef.current || !geoJsonLayerRef.current) return
+    geoJsonLayerRef.current.eachLayer((layer) => {
+      const feature = (layer as any).feature as Feature
+      if (feature?.properties?.code === code) {
+        const bounds = (layer as any).getBounds?.()
+        if (bounds) mapRef.current!.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 })
+      }
+    })
+  }
+
+  function handleSearchSelect(commune: { code: string; name: string }) {
+    selectedCodeRef.current = commune.code
+    setSelectedCommune(commune)
+    centerOnCommune(commune.code)
+  }
 
   function styleFeature(feature?: Feature): PathOptions {
     const code = feature?.properties?.code as string | undefined
@@ -125,8 +153,10 @@ export default function FranceMap() {
         target.setStyle(styleFeature(feature))
       },
       click: () => {
-        selectedCodeRef.current = code ?? null
-        setSelectedCommune({ code: code ?? '', name: name ?? code ?? '' })
+        const clickedCode = code ?? ''
+        selectedCodeRef.current = clickedCode
+        setSelectedCommune({ code: clickedCode, name: name ?? clickedCode })
+        centerOnCommune(clickedCode)
       },
     })
   }
@@ -149,6 +179,7 @@ export default function FranceMap() {
         </div>
       )}
       <MapContainer
+        ref={mapRef}
         center={[46.5, 2.5]}
         zoom={6}
         minZoom={5}
@@ -160,6 +191,7 @@ export default function FranceMap() {
       >
         {geojson && (
           <GeoJSON
+            ref={geoJsonLayerRef}
             key={winnerMap.size}
             data={geojson}
             style={styleFeature}
@@ -167,6 +199,9 @@ export default function FranceMap() {
           />
         )}
       </MapContainer>
+      {communes.length > 0 && (
+        <SearchBar communes={communes} onSelect={handleSearchSelect} />
+      )}
       {!loadingGeo && <MapLegend winnerMap={winnerMap} totalCommunes={communeResultsMap.size} />}
       {selectedCommune && (
         <div className="absolute bottom-6 right-6 z-[1000]">

@@ -17,6 +17,7 @@ function normalize(str: string): string {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
 }
 
 export default function SearchBar({ communes, onSelect }: SearchBarProps) {

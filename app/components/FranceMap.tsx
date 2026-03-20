@@ -204,7 +204,7 @@ export default function FranceMap() {
       )}
       {!loadingGeo && <MapLegend winnerMap={winnerMap} totalCommunes={communeResultsMap.size} />}
       {selectedCommune && (
-        <div className="absolute bottom-6 right-6 z-[1000]">
+        <div className="absolute bottom-6 left-6 sm:left-auto sm:right-6 z-[1000]">
           <CommunePanel
             name={selectedCommune.name}
             result={communeResultsMap.get(selectedCommune.code)}

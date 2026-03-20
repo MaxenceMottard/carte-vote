@@ -54,7 +54,7 @@ export default function CommunePanel({ name, result, onClose }: Props) {
   const canMerge = (l: Liste) => inscrits > 0 && (l.voix / inscrits) * 100 >= 5 && !qualifies(l)
 
   return (
-    <div className="bg-white rounded-lg shadow-lg border border-gray-200 w-72 max-h-[70vh] flex flex-col overflow-hidden">
+    <div className="bg-white rounded-lg shadow-lg border border-gray-200 w-72 max-h-[60vh] min-h-56 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
         <h2 className="font-semibold text-gray-900 text-sm truncate pr-2">{name}</h2>
@@ -68,7 +68,7 @@ export default function CommunePanel({ name, result, onClose }: Props) {
       </div>
 
       {/* Body */}
-      <div className="overflow-y-auto flex-1 px-4 py-3 space-y-1">
+      <div className="overflow-y-auto flex-1 px-4 py-3 space-y-1 flex flex-col justify-between">
         {!result ? (
           <p className="text-sm text-gray-500">Aucun résultat disponible pour cette commune.</p>
         ) : hasWinner ? (

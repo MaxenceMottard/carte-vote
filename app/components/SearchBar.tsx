@@ -39,6 +39,13 @@ export default function SearchBar({ communes, onSelect }: SearchBarProps) {
       const q = normalize(value)
       const matched = communes
         .filter((c) => normalize(c.name).includes(q))
+        .sort((a, b) => {
+          const aStarts = normalize(a.name).startsWith(q)
+          const bStarts = normalize(b.name).startsWith(q)
+          if (aStarts && !bStarts) return -1
+          if (!aStarts && bStarts) return 1
+          return 0
+        })
         .slice(0, 10)
       setResults(matched)
       setOpen(matched.length > 0)

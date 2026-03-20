@@ -14,11 +14,9 @@ export default function Home() {
       <footer className="shrink-0 px-4 py-2 bg-white border-t border-gray-200 text-xs text-gray-500 flex items-center justify-center gap-1">
         <span>Développé par</span>
         <a href="https://github.com/maxencemottard" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">Maxence Mottard</a>
-        <span>&amp;</span>
-        <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">Claude</a>
         <span>—</span>
-        <a href="https://github.com/MaxenceMottard/carte-vote" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">Repository GitHub</a>
-        <span>— Données</span>
+        <a href="https://github.com/MaxenceMottard/carte-vote" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">GitHub</a>
+        <span>—</span>
         <a href="https://data.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900 underline">data.gouv.fr</a>
       </footer>
     </main>
